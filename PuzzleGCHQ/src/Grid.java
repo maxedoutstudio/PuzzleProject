@@ -7,9 +7,10 @@ public class Grid {
 	
 	Grid() { }
 	
-	Grid(int r, int c) {
+	Grid(int r, int c, String s) {
 		rows = r;
 		columns = c;
+		difficulty = s;
 	}
 	
 	public void setRowSize(int r)
@@ -30,6 +31,16 @@ public class Grid {
 	public int getColumnSize()
 	{
 		return columns;
+	}
+	
+	public void setDifficulty(String s)
+	{
+		difficulty = s;
+	}
+	
+	public String getDifficulty()
+	{
+		return difficulty;
 	}
 	
 }
