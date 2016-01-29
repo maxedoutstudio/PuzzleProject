@@ -16,7 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 
-//Testing
+//Testing something again
 public class GUI {
 
 	private JFrame frmTeamW;
