@@ -5,8 +5,6 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
 
-// testing123
-
 public class Square {
 
 	private int id;				// ID of the square starting from 1
