@@ -1,20 +1,21 @@
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.LayoutManager;
 import java.util.*;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JSplitPane;
+import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
-import java.awt.Font;
-import javax.swing.JTextArea;
-import javax.swing.JTextPane;
+
 
 public class GUI {
 
@@ -23,6 +24,10 @@ public class GUI {
 	private ArrayList<Square> squares = new ArrayList<Square>();
 	private ArrayList<Square> blackSquares = new ArrayList<Square>();
 	private ArrayList<Square> solutionSquares = new ArrayList<Square>();
+	private JPanel questionPanel = new JPanel();
+	private JPanel headerRows = new JPanel();
+	private JPanel headerCols = new JPanel();
+	private Square s;
 
 	/**
 	 * Launch the application.
@@ -58,24 +63,103 @@ public class GUI {
 		frmTeamW.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmTeamW.getContentPane().setLayout(null);
 		
-		generateEmptyGrid();
+		
+		generateEmptyGrid(4,4,"easy");
 		generateSolutionGrid();
 		saveSolutionGrid();
 		calculateHeaders();
 		prepareQuestionGrid();
 		
-		JLabel lblDifficultyEasy = new JLabel("Difficulty: Easy");
-		lblDifficultyEasy.setBounds(36, 52, 98, 14);
-		frmTeamW.getContentPane().add(lblDifficultyEasy);
+		JLabel lblDifficulty = new JLabel("Difficulty: " + String.valueOf(grid.getDifficulty()));
+		lblDifficulty.setBounds(36, 32, 98, 14);
+		lblDifficulty.setSize(150,40);
+		frmTeamW.getContentPane().add(lblDifficulty);
+		
+		
+		// Creating easy difficulty button
+		JButton btnEasy = new JButton("Easy");
+		btnEasy.setBounds(301, 89, 120, 35);
+		btnEasy.setActionCommand("easy");
+		frmTeamW.getContentPane().add(btnEasy);
+		
+		// Creating medium difficulty button
+		JButton btnMedium = new JButton("Medium");
+		btnMedium.setBounds(301, 139, 120, 35);
+		btnMedium.setActionCommand("medium");
+		frmTeamW.getContentPane().add(btnMedium);
+		
+		// Creating hard difficulty button
+		JButton btnHard = new JButton("Hard");
+		btnHard.setBounds(301, 189, 120, 35);
+		btnHard.setActionCommand("hard");
+		frmTeamW.getContentPane().add(btnHard);
+		
+		//  Action handler to reset everything whenever the buttons are clicked 
+		ActionListener difficulty = new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				
+				String command = e.getActionCommand();
+				
+				reset();   //  Function to reset all panels in order to start new game
+				
+				//  If the easy button is clicked then make a 4x4 grid
+				if(command.equals("easy")){
+					generateEmptyGrid(4,4,"easy");
+					lblDifficulty.setText("Difficulty: " + String.valueOf(grid.getDifficulty()));
+				}
+				
+				//  If the medium button is clicked then make a 6x8 grid
+				if(command.equals("medium")){
+					generateEmptyGrid(6,8,"medium");
+					lblDifficulty.setText("Difficulty: " + String.valueOf(grid.getDifficulty()));
+				}
+				
+				//  If the hard button is clicked then make a 8x8 grid
+				if(command.equals("hard")){
+					generateEmptyGrid(8,8,"hard");
+					lblDifficulty.setText("Difficulty: " + String.valueOf(grid.getDifficulty()));
+				}
+				
+				//  Remake the game
+				generateSolutionGrid();
+				saveSolutionGrid();
+				calculateHeaders();
+				prepareQuestionGrid();
+				
+				frmTeamW.getContentPane().add(questionPanel);
+				frmTeamW.getContentPane().add(headerRows);
+				frmTeamW.getContentPane().add(headerCols);
+				frmTeamW.revalidate();
+				frmTeamW.repaint();
+				
+			}
+		};
+		
+		btnEasy.addActionListener(difficulty);
+		btnMedium.addActionListener(difficulty);
+		btnHard.addActionListener(difficulty);
+		
 		
 		JButton btnShowSolution = new JButton("Show Solution");
 		btnShowSolution.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
+				int errors = 0;
+				boolean check;
+				
 				for (int i = 0; i < squares.size(); i++)
 				{
+					check = squares.get(i).getFlag();
 					squares.get(i).setFlag(solutionSquares.get(i).getFlag());
+					
+					if(check != squares.get(i).getFlag())  // If the player made a mistake then it increments the error count
+					{
+						errors++;
+					}
 				}
+				
+				JOptionPane.showMessageDialog(null, "You made " + errors + " errors.");
+				
 			}
 		});
 		btnShowSolution.setBounds(301, 249, 120, 35);
@@ -90,15 +174,15 @@ public class GUI {
 	 * Hard:	8x8
 	 * The Square object's id is labeled from left to right, top to bottom.
 	 */
-	private void generateEmptyGrid()
+	private void generateEmptyGrid(int row, int cols, String diff)
 	{
-		// 4x4 example
-		grid = new Grid(4, 4);
+		
+		grid = new Grid(row, cols, diff);
 		int totalRows = grid.getRowSize();
 		int totalCols = grid.getColumnSize();		
 		
 		// Solution Grid
-		JPanel questionPanel = new JPanel();
+		questionPanel = new JPanel();
 		questionPanel.setBounds(113, 144, 140, 140);
 		frmTeamW.getContentPane().add(questionPanel);
 		questionPanel.setLayout(new GridLayout(totalRows, totalCols, 0, 0));
@@ -169,10 +253,11 @@ public class GUI {
 
 		// Row Header
 		
-		JPanel headerRows = new JPanel();
-		headerRows.setBounds(66, 144, 37, 140);
+	    headerRows = new JPanel();
+		headerRows.setBounds(36, 144, 37, 140);
+		headerRows.setSize(60,140);
 		frmTeamW.getContentPane().add(headerRows);
-		headerRows.setLayout(new GridLayout(4, 1, 0, 0));
+		headerRows.setLayout(new GridLayout(grid.getRowSize(), 10, 0, 0));
 				
 		int length;
 		String str;
@@ -184,7 +269,7 @@ public class GUI {
 			
 			for (int i = 0; i < grid.getColumnSize(); i++)
 			{
-				int offset = grid.getRowSize() * j;
+				int offset = grid.getColumnSize() * j;
 				
 				if (squares.get(offset + i).getFlag())
 				{
@@ -209,10 +294,11 @@ public class GUI {
 		
 		// Column Header
 		
-		JPanel headerCols = new JPanel();
-		headerCols.setBounds(113, 98, 140, 35);
+		headerCols = new JPanel();
+		headerCols.setBounds(113, 80, 140, 35);
+		headerCols.setSize(140,60);
 		frmTeamW.getContentPane().add(headerCols);
-		headerCols.setLayout(new GridLayout(1, 4, 0, 0));
+		headerCols.setLayout(new GridLayout(1, grid.getColumnSize(), 0, 0));
 
 		for (int j = 0; j < grid.getColumnSize(); j++)
 		{
@@ -272,4 +358,23 @@ public class GUI {
 			}
 		}
 	}
+	
+	
+	/**
+	 * Reset the values of all objects, array alike whenever a new puzzle is setup
+	 */
+	private void reset(){
+		
+		//  Clear all panels, objects and arrays
+		frmTeamW.remove(questionPanel);
+		frmTeamW.remove(headerRows);
+		frmTeamW.remove(headerCols);
+		grid = null;
+		s = null;
+		squares.clear();
+		blackSquares.clear();
+		solutionSquares.clear();
+		
+	}
+	
 }

@@ -5,6 +5,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
 
+// testing commit
+
 public class Square {
 
 	private int id;				// ID of the square starting from 1
